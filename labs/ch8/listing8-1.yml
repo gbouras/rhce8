@@ -1,0 +1,11 @@
+---
+- name: stat module test
+  hosts: ansible1
+  tasks:
+  - name: get stat
+    stat: 
+      path: /etc/hosts
+    register: st
+  - name: show current values
+    debug:
+      msg: current value of the st variable is {{ st }}

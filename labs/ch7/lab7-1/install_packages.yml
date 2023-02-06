@@ -1,0 +1,51 @@
+--- 
+- name: install packages using var inclusion
+  hosts: ansible2
+  vars_files: vars/packages
+  tasks:
+  - name: install packages
+    yum:
+      name: "{{ item.name }}"
+      state: "{{ item.state }}"
+    loop: "{{ packages }}"
+    when: >
+      ( ansible_facts['distribution_major_version'] >= "8" ) and
+      ( ansible_facts['distribution'] == "RedHat" or ansible_facts['distribution'] == "CentOS" )
+
+  - name: report a failure
+    fail:
+      msg: Hostname {{ ansible_facts['hostname'] }} does not meet minimal requirements
+    when: >
+      ( 
+        ansible_facts['distribution_major_version'] < "8"
+        and ( ansible_facts['distribution'] != "RedHat" or ansible_facts['distribution'] != "CentOS" )
+      )
+
+  - name: copy over index.html
+    copy:
+      src: /tmp/index.html
+      dest: /var/www/html/
+    ignore_errors: yes
+    register: copy_result
+    notify:
+      - web_restart
+      - open_firewall
+
+  - name: report copy failure
+    debug:
+      msg: This is the value of copy_result.failed {{ copy_result.failed }}
+    when: copy_result.failed
+
+  handlers:
+    - name: web_restart
+      service:
+        name: httpd
+        state: restarted
+    - name: open_firewall
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop:
+        - http
+        - https

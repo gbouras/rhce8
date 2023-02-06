@@ -1,0 +1,15 @@
+---
+- name: conditional install
+  hosts: ansible1
+  tasks: 
+    - name: install web server for RedHat os
+      yum:
+        name: httpd
+        state: latest
+      when: ansible_facts['os_family'] == "RedHat"
+    - name: install web server for Ubuntu os
+      apt:
+        name: apache2
+        state: latest
+      when: ansible_facts['os_family'] == "Debian"
+

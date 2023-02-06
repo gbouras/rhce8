@@ -1,0 +1,9 @@
+---
+- name: check if host is reachable
+  hosts: ansible1
+  tasks:
+  - name: ping box and store results of response
+    ping:  
+    register: ping_result
+  - debug:
+      var: "ping_result"

@@ -1,0 +1,23 @@
+---
+- name: using custom facts, variables and file+copy modules
+  hosts: targets
+  vars_files:
+    - host_vars/filevars.yml
+  tasks:
+  - name: copy fact files to standard directory as determined by variable fact_dir
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: ansible
+      mode: "{{ item.mode }}"
+      force: yes
+    with_items:
+      - { src: 'service_facts.fact', dest: '{{ fact_dir }}', mode: '0644'}
+      - { src: 'package_facts.fact', dest: '{{ fact_dir }}', mode: '0644'}
+  - name: check files
+    command: ls "{{ fact_dir }}"
+    register: file_output
+  - name: print results
+    debug:
+      msg: "Files in directory {{ file_output }}"
+    when: file_output is defined

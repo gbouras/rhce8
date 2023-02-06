@@ -1,0 +1,20 @@
+---
+- name: check to see if these devices exist
+  hosts: targets
+  tasks:
+    - name: check for /dev/sda
+      debug:
+        msg: the disk device /dev/sda exists
+      when: ansible_facts['devices']['sda'] is defined
+    - name: check for /dev/sdb
+      debug:
+        msg: the disk device /dev/sdb exists
+      when: ansible_facts['devices']['sdb'] is defined
+    - name: dummy test intended to fail
+      debug:
+        msg: dummy is defined
+      when: dummy is defined
+    - name: check if /dev/sdc does not exist
+      debug:
+        msg: there is no /dev/sdc device
+      when: ansible_facts['devices']['sdc'] is not defined

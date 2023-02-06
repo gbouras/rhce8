@@ -1,0 +1,4 @@
+remote_dir: /tmp/copy_files_61/
+fact_dir: /etc/ansible/facts.d/
+web_root: /var/www/html/
+ftp_root: /var/ftp/

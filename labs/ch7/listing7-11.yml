@@ -1,0 +1,9 @@
+---
+- name: conditional test with integers
+  hosts: all
+  tasks:
+    - name: check if there's enough memory to install an app
+      package:
+        name: vsftpd
+        state: latest
+      when: ansible_facts['memory_mb']['real']['free'] > 512

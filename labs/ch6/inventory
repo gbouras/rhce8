@@ -1,0 +1,17 @@
+ansible1
+ansible2
+
+[web]
+ansible2
+
+[db]
+ansible1
+
+[file]
+ansible1
+
+[lamp]
+ansible2
+
+[targets]
+ansible[1:2]

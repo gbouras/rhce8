@@ -1,0 +1,18 @@
+--- 
+- name: install packages using var inclusion
+  hosts: ansible2
+  vars_files: vars/packages
+  tasks:
+  - name: install packages
+    yum:
+      name: "{{ item.name }}"
+      state: "{{ item.state }}"
+    loop: "{{ packages }}"
+
+  - name: report a failure
+    fail:
+      msg: Host {{ ansible_facts['hostname'] }} does not meet minimal requirements
+    when: >
+      ( ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] != "9" ) or  
+      ( ansible_facts['distribution'] == "Fedora" )
+

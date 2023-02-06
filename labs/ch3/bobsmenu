@@ -1,0 +1,13 @@
+ansible1
+ansible2
+
+[jenkins]
+ansible1
+jenkins02
+
+[database]
+oraprod01
+
+[servers:children]
+jenkins
+database

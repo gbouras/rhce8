@@ -1,0 +1,27 @@
+---
+- name: install and start web service using custom facts
+  hosts: web
+  tasks:
+    - name: yum install of ansible_facts.ansible_local.package_facts.package.web_package
+      yum:
+        name: "{{ ansible_facts['ansible_local']['package_facts']['package']['web_package'] }}"
+        state: "latest"
+    - name: start the web service ansible_facts.ansible_local.service_facts.services.web_service
+      service: 
+        name: "{{ ansible_facts['ansible_local']['service_facts']['services']['web_service'] }}"
+        enabled: yes
+        state: started
+- name: install and start the file server using custom facts
+  hosts: file
+  tasks:
+    - name: yum install of ansible_facts.ansible_local.package_facts.package.ftp_package
+      yum:
+        name: "{{ ansible_facts['ansible_local']['package_facts']['package']['ftp_package'] }}"
+        state: latest
+    - name: enable and start file server
+      service:
+        name: "{{ ansible_facts['ansible_local']['service_facts']['services']['ftp_service'] }}"
+        enabled: yes
+        state: started
+   
+

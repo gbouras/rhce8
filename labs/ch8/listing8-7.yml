@@ -1,0 +1,21 @@
+---
+- name: modifying file
+  hosts: all
+  tasks:
+  - name: ensure /tmp/hosts exists
+    file: 
+      path: /tmp/hosts
+      state: touch
+  - name: add some lines to /tmp/hosts
+    blockinfile: 
+      path: /tmp/hosts
+      block: |
+        192.168.4.110 host1.example.com
+        192.168.4.120 host2.example.com
+      state: present 
+  - name: check for addition of hosts
+    command: grep 192 /tmp/hosts
+    register: output
+  - name: list output from check for hosts
+    debug:
+      msg: The output variable contains {{ output.stdout }}

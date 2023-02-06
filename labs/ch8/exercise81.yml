@@ -1,0 +1,48 @@
+---
+- name: testing file manipulation skills
+  hosts: ansible1
+  tasks:
+  - name: create a new file
+    file:
+      name: /tmp/newfile
+      state: touch
+  - name: check on status of the new file
+    stat:
+      path: /tmp/newfile
+    register: fileInfo
+  - name: print out file info
+    debug:
+      msg: "The info we have on the file is {{ fileInfo }}"
+  - name: change the file owner if needed
+    file:
+      path: /tmp/newfile
+      owner: ansible
+    when: fileInfo.stat.pw_name != "ansible"
+
+- name: fetching a remote file
+  hosts: ansible1
+  tasks:
+  - name: fetch file from remote machine
+    fetch:
+      src: /etc/motd
+      dest: /tmp
+
+- name: use blockinfile to edit motd
+  hosts: localhost
+  tasks:
+  - name: add a message
+    blockinfile:
+     path: /tmp/ansible1/etc/motd
+     block: |
+       Welcome to this server for authorized 
+       users only. Jack-O-Lantern^2
+     state: present
+
+- name: copy motd to ansible2
+  hosts: ansible2
+  tasks:
+  - name: copy motd
+    copy:
+      src: /tmp/ansible1/etc/motd
+      dest: /tmp
+    

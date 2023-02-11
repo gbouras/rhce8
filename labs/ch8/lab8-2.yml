@@ -1,0 +1,68 @@
+---
+- name: create vsftp template
+  hosts: ansible1
+  vars:
+    anonymous_enable: 'YES'
+    local_enable: 'YES'
+    write_enable: 'YES'
+    anon_upload_enable: 'YES'
+  tasks:
+  - name: install vsftpd
+    yum: 
+      name: vsftpd
+      state: latest
+  - name: install selinux tools
+    yum:
+      name: policycoreutils-python-utils
+      state: present
+  - name: create template from /etc/vsftp/vsftp.conf and push to ansible1
+    template:
+      src: lab8-2.j2
+      dest: /etc/vsftpd/vsftpd.conf
+  - name: change permissions on /var/ftp/pub to 0777
+    file:
+      path: /var/ftp/pub
+      mode: '0777' 
+  - name: set ftpd_anon_write boolean to true
+    seboolean:
+      name: ftpd_anon_write
+      state: yes
+      persistent: yes
+  - name: set setfcontext for /var/ftp/pub to public_content_rw_t 
+    sefcontext:
+      target: '/var/ftp/pub(/.*)?'
+      setype: public_content_rw_t
+      state: present 
+      reload: yes
+    notify:
+      - run_restorecon
+  handlers:
+   - name: run_restorecon
+     command: restorecon -irv /var/ftp/pub 
+
+- name: manage a vsftp service
+  hosts: ansible1
+  tasks:
+  - name: start and enable vsftp service
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - name: if firewalld not enabled and started - enable and start it
+    service:
+      name: firewalld
+      state: restarted
+  - name: open firewall for vsftpd service
+    firewalld:
+      service: ftp
+      zone: public
+      state: enabled 
+      permanent: yes
+      immediate: yes
+    notify: 
+      - restart_firewalld
+  handlers:
+  - name: restart_firewalld
+    service: 
+      name: firewalld  
+      state: restarted

@@ -1,0 +1,13 @@
+
+- name: create vsftp template
+  hosts: ansible1
+  vars:
+    anonymous_enable: 'YES'
+    local_enable: 'YES'
+    write_enable: 'YES'
+    anon_upload_enable: 'YES'
+  tasks:
+  - name: create template from /etc/vsftp/vsftp.conf 
+    template:
+      src: lab8-2.j2
+      dest: /tmp/vsftpd.conf

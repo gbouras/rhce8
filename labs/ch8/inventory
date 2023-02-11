@@ -1,3 +1,7 @@
+[all]
+ansible1
+ansible2 
+
 [targets]
 ansible1
 ansible2

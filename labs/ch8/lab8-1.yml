@@ -1,0 +1,28 @@
+---
+- name: create /etc/hosts from ansible inventory
+  hosts: targets
+  tasks:
+  - name: cleanup old file
+    shell: 'cat /dev/null > /tmp/hosts'
+  - name: 1st check file contents
+    command: 'cat /tmp/hosts'
+    register: filecontents
+  - name: 1st output file contents
+    debug:
+      msg: Here is what is in the file  {{ filecontents.stdout }}
+  - name: add host entries to /etc/hosts
+    blockinfile:
+      path: /tmp/hosts
+      block: |
+        {{ item.ip }} {{ item.name }}
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+    loop:
+      - { name: ansible1, ip: 10.0.2.4 }
+      - { name: ansible2, ip: 10.0.2.5 } 
+  - name: check file contents
+    command: 'cat /tmp/hosts'
+    register: filecontents
+  - name: output file contents
+    debug:
+      msg: Here is what is in the file  {{ filecontents.stdout }}
+

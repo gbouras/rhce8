@@ -1,0 +1,19 @@
+---
+- name: define variable according to diskname detected
+  hosts: all
+  tasks:
+  - ignore_errors: yes
+    set_fact:
+      disk2name: sda
+    when: ansible_facts['devices']['sda']
+  - ignore_errors: yes
+    set_fact:
+      disk2name: nvme0n1
+    when: ansible_facts['devices']['nvme0n1']
+  - name: getting out if there is no second disk
+    fail:
+      msg: there is no second disk
+    when: disk2name is not defined
+  - name: showing this only for hosts with a second task
+    debug:
+      msg: continuing with {{ disk2name }}

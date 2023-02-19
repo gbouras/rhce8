@@ -1,0 +1,20 @@
+---
+- name: get vg sizes
+  hosts: ansible2
+  tasks:
+    - name: store vgsize in a variable
+      set_fact: 
+        vgsize: "{{ansible_facts['lvm']['vgs']['vgdata']['size_g'] | int}}"
+    - name: print the size of the volume group
+      debug:
+        msg: The value of vgsize is {{ vgsize }}
+    - name: find small vgroup sizes
+      debug:
+        msg: volume group is bigger than 18G
+      when:
+      - vgsize | int > 18
+    - name: find large vgroup sizes
+      debug:
+        msg: volume group smaller than 20G
+      when:
+      - vgsize | int <= 20

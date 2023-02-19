@@ -1,0 +1,16 @@
+---
+- name: get vg sizes
+  hosts: ansible2
+  tasks:
+    - name: find small vgroup sizes
+      debug:
+        msg: volume group smaller than or equal to 20G
+      when:
+      - ansible_facts['lvm']['vgs']['vgdata'] is defined
+      - ansible_facts['lvm']['vgs']['vgdata']['size_g'] <= '20.00'
+    - name: find large vgroup sizes
+      debug:
+        msg: volume group greater than or equal to 20G
+      when:
+      - ansible_facts['lvm']['vgs']['vgdata'] is defined
+      - ansible_facts['lvm']['vgs']['vgdata']['size_g'] >= '20.00'

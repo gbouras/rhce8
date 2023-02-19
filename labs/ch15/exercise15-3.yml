@@ -1,0 +1,49 @@
+---
+- name: set up hosts taht have an nvme device
+  hosts: ansible2
+  tasks:
+  - name: getting out with a nice failure message if there is no second disk
+    fail: 
+      msg: there is no second disk
+    when: ansible_facts['devices']['nvme0n1'] is not defined
+  - name: create a partition 
+    parted:
+      device: /dev/nvme0n1
+      number: 1
+      state: present
+  - name: create a volume group
+    lvg:
+      pvs: /dev/nvme0n1p1
+      vg: vgfiles
+  - name: update the facts
+    setup:
+  - name: get the vg size and store it in a variable 
+    set_fact:
+        vgsize: "{{ansible_facts['lvm']['vgs']['vgfiles']['size_g'] | int}}"
+  - name: show vgsize value
+    debug:
+      var: "{{ vgsize }}"
+  - name: create LVM on big volume groups 
+    lvol:
+      vg: vgfiles
+      lv: lvfiles
+      size: 6G
+    when:
+    - vgsize | int > 5
+  - name: create LVM on small volume groups 
+    lvol:
+      vg: vgfiles
+      lv: lvfiles
+      size: 3G
+    when:
+    - vgsize | int <= 5 
+  - name: formatting the XFS fileysystem 
+    filesystem:
+      dev: /dev/vgfiles/lvfiles
+      fstype: xfs
+  - name: mounting /dev/vgfiles/lvfiles 
+    mount:
+      path: /data
+      state: mounted
+      src: /dev/vgfiles/lvfiles
+      fstype: xfs
